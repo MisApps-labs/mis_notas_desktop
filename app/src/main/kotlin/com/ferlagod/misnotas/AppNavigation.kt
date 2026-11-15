@@ -205,7 +205,10 @@ internal fun AppNavigationHost(
                 onSearch = { query ->
                     viewModel.setFilter(NotesFilter.All)
                     viewModel.setSearchQuery(query)
-                    navController.navigate(AppDestinations.NOTES)
+                    // Se llama con cada tecla hasta que cambia la pantalla: solo se navega una vez.
+                    if (navController.currentDestination?.route == AppDestinations.FOLDERS) {
+                        navController.navigate(AppDestinations.NOTES) { launchSingleTop = true }
+                    }
                 },
                 onNewNote = { navController.navigate(AppDestinations.editorRoute()) },
                 onCreateFolder = viewModel::createFolder,

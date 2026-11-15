@@ -96,7 +96,11 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import com.ferlagod.misnotas.i18n.pluralStringResource
 import com.ferlagod.misnotas.i18n.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -302,7 +306,10 @@ fun NotesScreen(
                 SearchField(
                     query = searchQuery,
                     hint = if (isTrashView) stringResource(R.string.search_trash_hint) else stringResource(R.string.search_notes_hint),
-                    onQueryChange = actions.onSearchQueryChange
+                    onQueryChange = actions.onSearchQueryChange,
+                    // Si se llega con texto ya escrito (búsqueda desde la pantalla principal),
+                    // el campo recibe el foco para seguir escribiendo sin interrupción.
+                    autoFocus = remember { searchQuery.isNotEmpty() }
                 )
 
                 if (isTrashView) {
@@ -601,9 +608,25 @@ fun SortOrder.labelRes(): String = when (this) {
     SortOrder.TITLE_DESC -> R.string.sort_title_desc
 }
 
-/** Campo de búsqueda dentro de la lista. */
+/**
+ * Campo de búsqueda dentro de la lista; filtra mientras se escribe.
+ *
+ * @param autoFocus pide el foco al aparecer, con el cursor al final del texto.
+ */
 @Composable
-private fun SearchField(query: String, hint: String, onQueryChange: (String) -> Unit) {
+private fun SearchField(query: String, hint: String, onQueryChange: (String) -> Unit, autoFocus: Boolean = false) {
+    // Se guarda el TextFieldValue para controlar la posición del cursor; se sincroniza si
+    // el texto cambia desde fuera (por ejemplo, al limpiar la búsqueda). Solo se resincroniza
+    // cuando [query] cambia de verdad, para no pisar lo recién tecleado mientras llega el valor.
+    var fieldValue by remember { mutableStateOf(TextFieldValue(query, TextRange(query.length))) }
+    var lastQuery by remember { mutableStateOf(query) }
+    if (query != lastQuery) {
+        lastQuery = query
+        if (fieldValue.text != query) fieldValue = TextFieldValue(query, TextRange(query.length))
+    }
+    val focusRequester = remember { FocusRequester() }
+    if (autoFocus) LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
+
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -626,12 +649,15 @@ private fun SearchField(query: String, hint: String, onQueryChange: (String) -> 
             )
             Spacer(modifier = Modifier.width(10.dp))
             BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
+                value = fieldValue,
+                onValueChange = {
+                    fieldValue = it
+                    if (it.text != query) onQueryChange(it.text)
+                },
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).focusRequester(focusRequester),
                 decorationBox = { innerTextField ->
                     if (query.isEmpty()) {
                         Text(

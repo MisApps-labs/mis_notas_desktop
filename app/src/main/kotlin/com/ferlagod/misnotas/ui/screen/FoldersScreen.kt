@@ -77,7 +77,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,7 +119,7 @@ import com.ferlagod.misnotas.ui.viewmodel.NotesFilter
  * de carpetas con su número de notas. Desde aquí se crean, editan y eliminan carpetas.
  *
  * @param notes notas visibles, para contar las de cada carpeta.
- * @param onSearch busca en todas las notas con el texto escrito.
+ * @param onSearch busca en todas las notas con el texto escrito; se lanza en cuanto se escribe.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,7 +152,8 @@ fun FoldersScreen(
     var parentForNewFolder by remember { mutableStateOf<String?>(null) }
     var folderToEdit by remember { mutableStateOf<FolderEntity?>(null) }
     var folderToDelete by remember { mutableStateOf<FolderEntity?>(null) }
-    var query by rememberSaveable { mutableStateOf("") }
+    // Sin "saveable": al volver a esta pantalla el campo aparece vacío.
+    var query by remember { mutableStateOf("") }
 
     val tree = remember(folders) { FolderTree.flatten(folders) }
     val countByFolder = remember(notes) { notes.groupingBy { it.folderId }.eachCount() }
@@ -209,10 +209,15 @@ fun FoldersScreen(
                 item(key = "search") {
                     GlobalSearchField(
                         query = query,
-                        onQueryChange = { query = it },
+                        onQueryChange = { text ->
+                            // Búsqueda proactiva: con el primer carácter se pasa a la lista de
+                            // resultados, que sigue filtrando mientras se escribe.
+                            query = text
+                            if (text.isNotBlank()) onSearch(text)
+                        },
                         onSearch = {
                             focusManager.clearFocus()
-                            onSearch(query.trim())
+                            if (query.isNotBlank()) onSearch(query.trim())
                             query = ""
                         }
                     )
@@ -467,7 +472,7 @@ private fun RowDivider(start: androidx.compose.ui.unit.Dp) {
     )
 }
 
-/** Campo de búsqueda en todas las notas; [onSearch] se lanza al pulsar Intro. */
+/** Campo de búsqueda en todas las notas; al escribir se abre la lista de resultados. */
 @Composable
 private fun GlobalSearchField(query: String, onQueryChange: (String) -> Unit, onSearch: () -> Unit) {
     Surface(
