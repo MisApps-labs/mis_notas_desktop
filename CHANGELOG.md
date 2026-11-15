@@ -2,7 +2,16 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versiones según [SemVer](https://semver.org/lang/es/).
 
-## [Sin publicar]
+## [1.0.1] - 2026-11-15
+
+### Añadido
+- Aviso de versiones nuevas: al arrancar (como mucho una vez al día) se consulta en GitHub la última versión publicada y, si hay una más reciente, la pantalla principal muestra un aviso con «Descargar» y «Omitir». En Ajustes → Acerca de se puede desactivar o comprobar en el momento.
+
+### Cambiado
+- La búsqueda de la pantalla principal es instantánea: con la primera letra se abre la lista de resultados, que se filtra mientras se escribe.
+- En ventanas anchas (900 dp o más) la pantalla principal usa dos columnas: búsqueda y accesos rápidos a la izquierda, carpetas a la derecha.
+
+## [1.0.0] - 2026-11-11
 
 Primera versión de escritorio (Windows, macOS y Linux), a partir de [Mis Notas para Android](https://github.com/ferlagod/mis_notas) 1.0.0 con todas sus correcciones posteriores. Usa el mismo formato de sincronización (v2) y el mismo esquema de base de datos, así que se sincroniza con la app de Android a través del mismo Nextcloud.
 

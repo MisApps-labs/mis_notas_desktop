@@ -14,7 +14,7 @@ plugins {
 }
 
 /** Versión de la app (instaladores y pantalla "Acerca de"). Formato MAJOR.MINOR.PATCH, MAJOR > 0. */
-val appVersion = "1.0.0"
+val appVersion = "1.0.1"
 
 kotlin {
     jvmToolchain(21)
