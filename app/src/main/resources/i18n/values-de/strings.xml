@@ -304,4 +304,13 @@
         <item quantity="other">Vor %d Tagen</item>
     </plurals>
     <string name="already_running">Mis Notas ist bereits geöffnet.</string>
+    <string name="update_available">Mis Notas %1$s ist verfügbar</string>
+    <string name="update_available_desc">Du hast Version %1$s. Lade das neue Installationsprogramm von GitHub herunter.</string>
+    <string name="update_download">Herunterladen</string>
+    <string name="update_skip">Überspringen</string>
+    <string name="update_up_to_date">Du hast die neueste Version (%1$s).</string>
+    <string name="update_check_failed">Updates konnten nicht geprüft werden. Prüfe die Verbindung.</string>
+    <string name="check_updates">Nach Updates suchen</string>
+    <string name="check_updates_desc">Benachrichtigen, wenn eine neue Version auf GitHub erscheint</string>
+    <string name="check_updates_now">Jetzt prüfen</string>
 </resources>

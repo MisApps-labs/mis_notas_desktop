@@ -107,6 +107,8 @@ internal fun AppNavigationHost(
     val foldersMap by viewModel.foldersMap.collectAsStateWithLifecycle()
     val syncState by viewModel.syncState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val availableUpdate by viewModel.availableUpdate.collectAsStateWithLifecycle()
+    val checkingUpdates by viewModel.checkingUpdates.collectAsStateWithLifecycle()
     val pendingNavigation by viewModel.pendingNavigation.collectAsStateWithLifecycle()
     val busy by viewModel.busy.collectAsStateWithLifecycle()
 
@@ -216,7 +218,9 @@ internal fun AppNavigationHost(
                 onDeleteFolder = viewModel::deleteFolder,
                 onTriggerSync = viewModel::triggerSync,
                 onLockApp = viewModel::lock,
-                onOpenSettings = { navController.navigate(AppDestinations.SETTINGS) }
+                onOpenSettings = { navController.navigate(AppDestinations.SETTINGS) },
+                availableUpdate = availableUpdate,
+                onSkipUpdate = viewModel::skipUpdate
             )
         }
 
@@ -242,7 +246,10 @@ internal fun AppNavigationHost(
                 onExport = viewModel::exportBackup,
                 onImport = viewModel::importBackup,
                 currentLanguage = currentLanguage,
-                onLanguageSelected = onLanguageSelected
+                onLanguageSelected = onLanguageSelected,
+                onCheckUpdatesChange = viewModel::setCheckUpdates,
+                checkingUpdates = checkingUpdates,
+                onCheckUpdatesNow = viewModel::checkForUpdatesNow
             )
         }
 

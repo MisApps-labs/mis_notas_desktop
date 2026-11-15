@@ -305,4 +305,13 @@
         <item quantity="other">%d days ago</item>
     </plurals>
     <string name="already_running">Mis Notas is already open.</string>
+    <string name="update_available">Mis Notas %1$s is available</string>
+    <string name="update_available_desc">You have version %1$s. Download the new installer from GitHub.</string>
+    <string name="update_download">Download</string>
+    <string name="update_skip">Skip</string>
+    <string name="update_up_to_date">You have the latest version (%1$s).</string>
+    <string name="update_check_failed">Couldn’t check for updates. Check your connection.</string>
+    <string name="check_updates">Check for updates</string>
+    <string name="check_updates_desc">Notify when a new version is published on GitHub</string>
+    <string name="check_updates_now">Check now</string>
 </resources>

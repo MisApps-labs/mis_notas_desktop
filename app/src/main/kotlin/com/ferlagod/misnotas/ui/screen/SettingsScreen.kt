@@ -107,6 +107,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.rounded.NewReleases
 import com.ferlagod.misnotas.BuildConfig
 import com.ferlagod.misnotas.platform.FileDialogs
 import com.ferlagod.misnotas.util.DateFormats
@@ -155,7 +156,10 @@ fun SettingsScreen(
     onExport: (File) -> Unit,
     onImport: (List<File>) -> Unit,
     currentLanguage: AppLanguage,
-    onLanguageSelected: (AppLanguage) -> Unit
+    onLanguageSelected: (AppLanguage) -> Unit,
+    onCheckUpdatesChange: (Boolean) -> Unit = {},
+    checkingUpdates: Boolean = false,
+    onCheckUpdatesNow: () -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -352,7 +356,30 @@ fun SettingsScreen(
 
             // --- Acerca de ---
             SectionTitle(stringResource(R.string.section_about))
-            SettingsCard { AboutSection() }
+            SettingsCard {
+                Column {
+                    AboutSection()
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    SwitchRow(
+                        icon = Icons.Rounded.NewReleases,
+                        title = stringResource(R.string.check_updates),
+                        subtitle = stringResource(R.string.check_updates_desc),
+                        checked = settings.checkUpdates,
+                        onCheckedChange = onCheckUpdatesChange
+                    )
+                    TextButton(
+                        onClick = onCheckUpdatesNow,
+                        enabled = !checkingUpdates,
+                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                    ) {
+                        if (checkingUpdates) {
+                            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(stringResource(R.string.check_updates_now))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
         }

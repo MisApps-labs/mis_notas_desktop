@@ -4,6 +4,7 @@
 
 package com.ferlagod.misnotas.data.local.pref
 
+import com.ferlagod.misnotas.data.update.ReleaseInfo
 import com.ferlagod.misnotas.platform.AppDirs
 import com.ferlagod.misnotas.platform.PropertiesStore
 import java.io.File
@@ -30,7 +31,9 @@ data class AppSettingsState(
     /** Vaciar automáticamente las notas con más de [AppSettings.TRASH_RETENTION_DAYS] días en la papelera. */
     val autoPurgeTrash: Boolean = true,
     /** Pedir la contraseña de bloqueo al abrir la app. */
-    val appLock: Boolean = false
+    val appLock: Boolean = false,
+    /** Comprobar al arrancar si hay una versión nueva publicada en GitHub. */
+    val checkUpdates: Boolean = true
 )
 
 /**
@@ -50,7 +53,8 @@ class AppSettings private constructor(private val prefs: PropertiesStore) {
         themeMode = enumOrDefault(prefs.getString(KEY_THEME, null), ThemeMode.SYSTEM),
         amoled = prefs.getBoolean(KEY_AMOLED, false),
         autoPurgeTrash = prefs.getBoolean(KEY_AUTO_PURGE, true),
-        appLock = prefs.getBoolean(KEY_APP_LOCK, false)
+        appLock = prefs.getBoolean(KEY_APP_LOCK, false),
+        checkUpdates = prefs.getBoolean(KEY_CHECK_UPDATES, true)
     )
 
     /** Guarda los cambios en disco y publica el nuevo estado. */
@@ -71,6 +75,30 @@ class AppSettings private constructor(private val prefs: PropertiesStore) {
     fun setAutoPurgeTrash(enabled: Boolean) = update { putBoolean(KEY_AUTO_PURGE, enabled) }
     /** Activa o desactiva el bloqueo al abrir (la contraseña se gestiona en `AppLock`). */
     fun setAppLock(enabled: Boolean) = update { putBoolean(KEY_APP_LOCK, enabled) }
+    /** Activa o desactiva la comprobación automática de versiones nuevas. */
+    fun setCheckUpdates(enabled: Boolean) = update { putBoolean(KEY_CHECK_UPDATES, enabled) }
+
+    /** Momento (ms) de la última comprobación automática de versiones, o 0 si nunca. */
+    var lastUpdateCheck: Long
+        get() = prefs.getLong(KEY_LAST_UPDATE_CHECK, 0L)
+        set(value) = prefs.edit { putLong(KEY_LAST_UPDATE_CHECK, value) }
+
+    /** Última versión publicada que se vio en GitHub, para avisar sin volver a consultar. */
+    var lastSeenRelease: ReleaseInfo?
+        get() {
+            val version = prefs.getString(KEY_LAST_SEEN_VERSION, null) ?: return null
+            val url = prefs.getString(KEY_LAST_SEEN_URL, null) ?: return null
+            return ReleaseInfo(version, url)
+        }
+        set(value) = prefs.edit {
+            putString(KEY_LAST_SEEN_VERSION, value?.version)
+            putString(KEY_LAST_SEEN_URL, value?.url)
+        }
+
+    /** Versión de la que el usuario pidió no volver a avisar, o null. */
+    var skippedVersion: String?
+        get() = prefs.getString(KEY_SKIPPED_VERSION, null)
+        set(value) = prefs.edit { putString(KEY_SKIPPED_VERSION, value) }
 
     companion object {
         /** Fichero compartido con el idioma (ver LanguageManager). */
@@ -81,6 +109,11 @@ class AppSettings private constructor(private val prefs: PropertiesStore) {
         private const val KEY_AMOLED = "amoled"
         private const val KEY_AUTO_PURGE = "auto_purge_trash"
         private const val KEY_APP_LOCK = "app_lock"
+        private const val KEY_CHECK_UPDATES = "check_updates"
+        private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
+        private const val KEY_SKIPPED_VERSION = "skipped_update_version"
+        private const val KEY_LAST_SEEN_VERSION = "last_seen_release_version"
+        private const val KEY_LAST_SEEN_URL = "last_seen_release_url"
 
         /** Días que una nota permanece en la papelera antes del vaciado automático. */
         const val TRASH_RETENTION_DAYS = 30

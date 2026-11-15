@@ -317,4 +317,13 @@
         <item quantity="other">Hace %d días</item>
     </plurals>
     <string name="already_running">Mis Notas ya está abierta.</string>
+    <string name="update_available">Mis Notas %1$s disponible</string>
+    <string name="update_available_desc">Tienes la versión %1$s. Descarga el instalador nuevo desde GitHub.</string>
+    <string name="update_download">Descargar</string>
+    <string name="update_skip">Omitir</string>
+    <string name="update_up_to_date">Tienes la última versión (%1$s).</string>
+    <string name="update_check_failed">No se pudo comprobar si hay versiones nuevas. Revisa la conexión.</string>
+    <string name="check_updates">Buscar actualizaciones</string>
+    <string name="check_updates_desc">Avisar cuando se publique una versión nueva en GitHub</string>
+    <string name="check_updates_now">Comprobar ahora</string>
 </resources>

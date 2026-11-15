@@ -92,6 +92,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
+import com.ferlagod.misnotas.data.update.ReleaseInfo
+import com.ferlagod.misnotas.BuildConfig
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.ui.layout.ContentScale
 import com.ferlagod.misnotas.platform.Drawables
 import com.ferlagod.misnotas.platform.painterResource
@@ -124,6 +128,8 @@ import com.ferlagod.misnotas.ui.viewmodel.NotesFilter
  *
  * @param notes notas visibles, para contar las de cada carpeta.
  * @param onSearch busca en todas las notas con el texto escrito; se lanza en cuanto se escribe.
+ * @param availableUpdate versión nueva de la que avisar (null: ninguna).
+ * @param onSkipUpdate no volver a avisar de [availableUpdate].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,11 +150,14 @@ fun FoldersScreen(
     onDeleteFolder: (String) -> Unit,
     onTriggerSync: () -> Unit,
     onLockApp: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    availableUpdate: ReleaseInfo? = null,
+    onSkipUpdate: () -> Unit = {}
 ) {
     val isDark = isAppInDarkTheme()
     val primary = MaterialTheme.colorScheme.primary
     val focusManager = LocalFocusManager.current
+    val uriHandler = LocalUriHandler.current
     val listState = rememberLazyListState()
     val fabExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
 
@@ -197,6 +206,17 @@ fun FoldersScreen(
                     }
                 }
             )
+        }
+
+        val updateBanner = @Composable {
+            availableUpdate?.let { release ->
+                UpdateBanner(
+                    release = release,
+                    onDownload = { uriHandler.openUri(release.url) },
+                    onSkip = onSkipUpdate
+                )
+                Spacer(modifier = Modifier.height(18.dp))
+            }
         }
 
         val search = @Composable {
@@ -341,6 +361,7 @@ fun FoldersScreen(
                 val sidePadding = maxOf(24.dp, (maxWidth - HOME_WIDE_MAX_WIDTH) / 2)
                 Column(modifier = Modifier.fillMaxSize().padding(horizontal = sidePadding)) {
                     Box(modifier = Modifier.padding(top = 4.dp)) { header() }
+                    updateBanner()
                     Row(modifier = Modifier.fillMaxSize()) {
                         Column(
                             modifier = Modifier
@@ -372,6 +393,7 @@ fun FoldersScreen(
                     contentPadding = PaddingValues(start = sidePadding, end = sidePadding, top = 4.dp, bottom = 104.dp)
                 ) {
                     item(key = "header") { header() }
+                    if (availableUpdate != null) item(key = "update") { updateBanner() }
                     item(key = "search") { search() }
                     item(key = "quick") { quickViews() }
                     item(key = "folders_header") { foldersHeader() }
@@ -555,6 +577,43 @@ private fun GlobalSearchField(query: String, onQueryChange: (String) -> Unit, on
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(Icons.Rounded.Clear, contentDescription = stringResource(R.string.cd_clear_search), modifier = Modifier.size(18.dp))
+                }
+            }
+        }
+    }
+}
+
+/** Aviso de versión nueva con botones para descargarla u omitirla. */
+@Composable
+private fun UpdateBanner(release: ReleaseInfo, onDownload: () -> Unit, onSkip: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Rounded.NewReleases, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.update_available, release.version),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                )
+                Text(
+                    text = stringResource(R.string.update_available_desc, BuildConfig.VERSION_NAME),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Row(modifier = Modifier.padding(top = 4.dp)) {
+                    TextButton(onClick = onDownload) {
+                        Text(stringResource(R.string.update_download), fontWeight = FontWeight.SemiBold)
+                    }
+                    TextButton(onClick = onSkip) {
+                        Text(stringResource(R.string.update_skip))
+                    }
                 }
             }
         }

@@ -29,6 +29,10 @@ import com.ferlagod.misnotas.data.sync.SyncWorker
 import com.ferlagod.misnotas.ui.theme.NoteColor
 import com.ferlagod.misnotas.util.ImageCompressor
 import com.ferlagod.misnotas.util.TextSearch
+import com.ferlagod.misnotas.data.update.ReleaseInfo
+import com.ferlagod.misnotas.data.update.UpdateChecker
+import com.ferlagod.misnotas.BuildConfig
+import com.ferlagod.misnotas.platform.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -65,6 +69,11 @@ sealed interface NotesFilter {
     /** Las notas de una carpeta (sin las de sus subcarpetas). */
     data class Folder(val folderId: String, val folderName: String) : NotesFilter
 }
+
+private const val TAG = "MainViewModel"
+
+/** Tiempo mínimo entre dos comprobaciones automáticas de versiones nuevas (un día). */
+private const val UPDATE_CHECK_INTERVAL_MS = 24L * 60 * 60 * 1000
 
 /** Avisos puntuales para la interfaz (snackbars). */
 sealed interface UiEvent {
@@ -129,6 +138,14 @@ class MainViewModel : ViewModel() {
     private val _events = Channel<UiEvent>(Channel.BUFFERED)
     /** Avisos puntuales; cada uno se entrega una sola vez. */
     val events: Flow<UiEvent> = _events.receiveAsFlow()
+
+    private val _availableUpdate = MutableStateFlow<ReleaseInfo?>(null)
+    /** Versión nueva publicada de la que hay que avisar, o null. */
+    val availableUpdate: StateFlow<ReleaseInfo?> = _availableUpdate.asStateFlow()
+
+    private val _checkingUpdates = MutableStateFlow(false)
+    /** Hay una comprobación manual de versiones en curso. */
+    val checkingUpdates: StateFlow<Boolean> = _checkingUpdates.asStateFlow()
 
     private val _pendingNavigation = MutableStateFlow<PendingNavigation?>(null)
     /** Navegación pendiente; la pantalla la ejecuta y llama a [consumeNavigation]. */
@@ -236,6 +253,86 @@ class MainViewModel : ViewModel() {
         if (_isConfigured.value && _isUnlocked.value) {
             SyncWorker.schedule()
             triggerSync()
+        }
+        checkForUpdatesInBackground()
+    }
+
+    // ==========================================
+    // Versiones nuevas
+    // ==========================================
+
+    /**
+     * Comprobación automática al arrancar: como mucho una vez al día y sin avisar de errores
+     * (sin conexión, simplemente no se muestra nada).
+     */
+    private fun checkForUpdatesInBackground() {
+        if (!settings.value.checkUpdates) return
+        val now = System.currentTimeMillis()
+        if (now - appSettings.lastUpdateCheck < UPDATE_CHECK_INTERVAL_MS) {
+            // Ya se consultó hoy: no se vuelve a preguntar, pero se recuerda la última versión vista.
+            appSettings.lastSeenRelease?.let(::offerUpdate)
+            return
+        }
+        viewModelScope.launch {
+            runCatching { UpdateChecker.fetchLatest() }
+                .onSuccess { release ->
+                    appSettings.lastUpdateCheck = now
+                    appSettings.lastSeenRelease = release
+                    offerUpdate(release)
+                }
+                .onFailure { Log.w(TAG, "No se pudo comprobar si hay versiones nuevas", it) }
+        }
+    }
+
+    /** Comprobación pedida desde los ajustes; siempre informa del resultado. */
+    fun checkForUpdatesNow() {
+        if (_checkingUpdates.value) return
+        _checkingUpdates.value = true
+        viewModelScope.launch {
+            try {
+                val release = UpdateChecker.fetchLatest()
+                appSettings.lastUpdateCheck = System.currentTimeMillis()
+                appSettings.lastSeenRelease = release
+                if (UpdateChecker.isNewer(release.version, BuildConfig.VERSION_NAME)) {
+                    // Al comprobar a mano se avisa aunque antes se hubiera omitido esa versión.
+                    appSettings.skippedVersion = null
+                    _availableUpdate.value = release
+                    _events.trySend(UiEvent.Message(text(R.string.update_available, release.version)))
+                } else {
+                    _events.trySend(UiEvent.Message(text(R.string.update_up_to_date, BuildConfig.VERSION_NAME)))
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "No se pudo comprobar si hay versiones nuevas", e)
+                _events.trySend(UiEvent.Message(text(R.string.update_check_failed)))
+            } finally {
+                _checkingUpdates.value = false
+            }
+        }
+    }
+
+    /** Muestra el aviso si [release] es más nueva que la instalada y no se omitió. */
+    private fun offerUpdate(release: ReleaseInfo) {
+        if (UpdateChecker.isNewer(release.version, BuildConfig.VERSION_NAME) &&
+            release.version != appSettings.skippedVersion
+        ) {
+            _availableUpdate.value = release
+        }
+    }
+
+    /** No volver a avisar de la versión anunciada. */
+    fun skipUpdate() {
+        _availableUpdate.value?.let { appSettings.skippedVersion = it.version }
+        _availableUpdate.value = null
+    }
+
+    /** Activa o desactiva la comprobación automática; al activarla se comprueba enseguida. */
+    fun setCheckUpdates(enabled: Boolean) {
+        appSettings.setCheckUpdates(enabled)
+        if (enabled) {
+            appSettings.lastUpdateCheck = 0L
+            checkForUpdatesInBackground()
+        } else {
+            _availableUpdate.value = null
         }
     }
 
