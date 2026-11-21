@@ -13,7 +13,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 
 ## [1.0.0] - 2026-11-11
 
-Primera versión de escritorio (Windows, macOS y Linux), a partir de [Mis Notas para Android](https://github.com/ferlagod/mis_notas) 1.0.0 con todas sus correcciones posteriores. Usa el mismo formato de sincronización (v2) y el mismo esquema de base de datos, así que se sincroniza con la app de Android a través del mismo Nextcloud.
+Primera versión de escritorio (Windows, macOS y Linux), a partir de [Mis Notas para Android](https://github.com/MisApps-labs/mis_notas) 1.0.0 con todas sus correcciones posteriores. Usa el mismo formato de sincronización (v2) y el mismo esquema de base de datos, así que se sincroniza con la app de Android a través del mismo Nextcloud.
 
 ### Añadido
 - Instaladores `.dmg` (Apple Silicon e Intel), `.msi`/`.exe` y `.deb`/`.rpm`, con Java incluido.

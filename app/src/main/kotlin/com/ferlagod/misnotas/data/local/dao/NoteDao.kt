@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 ferlagod
-// Mis Notas — https://github.com/ferlagod/mis_notas_desktop
+// Mis Notas — https://github.com/MisApps-labs/mis_notas_desktop
 
 package com.ferlagod.misnotas.data.local.dao
 

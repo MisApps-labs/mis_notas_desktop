@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 ferlagod
-// Mis Notas — https://github.com/ferlagod/mis_notas_desktop
+// Mis Notas — https://github.com/MisApps-labs/mis_notas_desktop
 
 package com.ferlagod.misnotas.data.update
 
@@ -27,8 +27,8 @@ data class ReleaseInfo(
 object UpdateChecker {
 
     private const val LATEST_RELEASE_API =
-        "https://api.github.com/repos/ferlagod/mis_notas_desktop/releases/latest"
-    private const val RELEASES_PAGE = "https://github.com/ferlagod/mis_notas_desktop/releases"
+        "https://api.github.com/repos/MisApps-labs/mis_notas_desktop/releases/latest"
+    private const val RELEASES_PAGE = "https://github.com/MisApps-labs/mis_notas_desktop/releases"
 
     private val client: OkHttpClient by lazy {
         WebDavClient.sharedHttpClient.newBuilder()

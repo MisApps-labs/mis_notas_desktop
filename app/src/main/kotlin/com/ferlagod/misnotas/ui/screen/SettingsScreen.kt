@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 ferlagod
-// Mis Notas — https://github.com/ferlagod/mis_notas_desktop
+// Mis Notas — https://github.com/MisApps-labs/mis_notas_desktop
 
 package com.ferlagod.misnotas.ui.screen
 
@@ -939,7 +939,7 @@ private fun AboutSection() {
 }
 
 /** Repositorio con el código fuente. */
-private const val REPO_URL = "https://github.com/ferlagod/mis_notas_desktop"
+private const val REPO_URL = "https://github.com/MisApps-labs/mis_notas_desktop"
 
 /**
  * Campo de texto de los ajustes con icono; si [isPassword], oculta el texto y añade el botón de mostrarlo.

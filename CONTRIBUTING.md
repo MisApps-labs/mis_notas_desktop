@@ -19,7 +19,7 @@
 4. Si cambias la base de datos, sube `version` en `AppDatabase`, añade una `Migration` y versiona el JSON que se genera en `app/schemas/`. Nunca uses migraciones destructivas: se perderían notas.
 5. Si cambias el formato remoto, actualiza [docs/SYNC_FORMAT.md](docs/SYNC_FORMAT.md) y mantén la lectura de los formatos antiguos.
 6. Los cambios en `data/sync` o `security` deben venir con tests.
-7. El formato de sincronización y el esquema de la base de datos son los mismos que en [la app de Android](https://github.com/ferlagod/mis_notas). Si cambian aquí, tienen que cambiar también allí (y al revés), o los dispositivos dejarán de entenderse.
+7. El formato de sincronización y el esquema de la base de datos son los mismos que en [la app de Android](https://github.com/MisApps-labs/mis_notas). Si cambian aquí, tienen que cambiar también allí (y al revés), o los dispositivos dejarán de entenderse.
 
 Al contribuir aceptas que tu código se publique bajo la licencia **GPL v3 o posterior**.
 

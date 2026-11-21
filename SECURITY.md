@@ -4,7 +4,7 @@
 
 **No abras una incidencia pública** para fallos de seguridad. Usa el aviso privado de GitHub:
 pestaña **Security → Report a vulnerability** del repositorio
-([enlace directo](https://github.com/ferlagod/mis_notas_desktop/security/advisories/new)).
+([enlace directo](https://github.com/MisApps-labs/mis_notas_desktop/security/advisories/new)).
 
 Indica la versión de la app, los pasos para reproducirlo y el impacto. Intentaré responder en un plazo de 7 días.
 

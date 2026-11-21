@@ -10,13 +10,13 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="Licencia: GPL v3" src="https://img.shields.io/badge/licencia-GPLv3-blue.svg"></a>
-  <a href="https://github.com/ferlagod/mis_notas_desktop/actions/workflows/desktop.yml"><img alt="CI" src="https://github.com/ferlagod/mis_notas_desktop/actions/workflows/desktop.yml/badge.svg"></a>
+  <a href="https://github.com/MisApps-labs/mis_notas_desktop/actions/workflows/desktop.yml"><img alt="CI" src="https://github.com/MisApps-labs/mis_notas_desktop/actions/workflows/desktop.yml/badge.svg"></a>
   <img alt="Windows · macOS · Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-escritorio-6E8B3D.svg">
 </p>
 
 ---
 
-Es la versión de escritorio de [Mis Notas para Android](https://github.com/ferlagod/mis_notas). Comparten el formato de sincronización, así que puedes usar el mismo Nextcloud y la misma contraseña maestra en el móvil y en el ordenador: las notas, carpetas e imágenes se sincronizan entre todos tus dispositivos.
+Es la versión de escritorio de [Mis Notas para Android](https://github.com/MisApps-labs/mis_notas). Comparten el formato de sincronización, así que puedes usar el mismo Nextcloud y la misma contraseña maestra en el móvil y en el ordenador: las notas, carpetas e imágenes se sincronizan entre todos tus dispositivos.
 
 ## Características
 
@@ -52,7 +52,7 @@ Es la versión de escritorio de [Mis Notas para Android](https://github.com/ferl
 
 ## Instalación
 
-Descarga el instalador de tu sistema desde la página de [Releases](https://github.com/ferlagod/mis_notas_desktop/releases):
+Descarga el instalador de tu sistema desde la página de [Releases](https://github.com/MisApps-labs/mis_notas_desktop/releases):
 
 | Sistema | Fichero | Notas |
 |---------|---------|-------|
@@ -109,7 +109,7 @@ Detalles técnicos en [SECURITY.md](SECURITY.md) y en el [formato de sincronizac
 Necesitas JDK 21 (Gradle lo descarga solo si no lo tienes).
 
 ```bash
-git clone https://github.com/ferlagod/mis_notas_desktop.git
+git clone https://github.com/MisApps-labs/mis_notas_desktop.git
 cd mis_notas_desktop
 ./gradlew run                                # abre la app
 ./gradlew :app:test                          # tests unitarios
@@ -148,7 +148,7 @@ La interfaz usa [Compose Multiplatform](https://www.jetbrains.com/compose-multip
 - Solo admite imágenes como adjuntos.
 - Los instaladores todavía no están firmados (macOS y Windows avisarán la primera vez).
 
-¿Ideas o fallos? Abre una [incidencia](https://github.com/ferlagod/mis_notas_desktop/issues).
+¿Ideas o fallos? Abre una [incidencia](https://github.com/MisApps-labs/mis_notas_desktop/issues).
 
 ## Contribuir
 
