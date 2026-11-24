@@ -314,4 +314,8 @@
     <string name="check_updates">Check for updates</string>
     <string name="check_updates_desc">Notify when a new version is published on GitHub</string>
     <string name="check_updates_now">Check now</string>
+    <string name="err_vault_upgraded">The encryption was upgraded on another device. Enter your master password again.</string>
+    <string name="err_bad_recovery">That recovery key isn’t valid for this account</string>
+    <string name="err_keyinfo_downgraded">The server has an older encryption setup than this device. Sync is paused to protect your notes.</string>
+    <string name="err_vault_concurrent">Another device changed the encryption at the same time. Try again.</string>
 </resources>

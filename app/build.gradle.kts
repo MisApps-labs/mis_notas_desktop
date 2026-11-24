@@ -14,7 +14,7 @@ plugins {
 }
 
 /** Versión de la app (instaladores y pantalla "Acerca de"). Formato MAJOR.MINOR.PATCH, MAJOR > 0. */
-val appVersion = "1.0.1"
+val appVersion = "1.1.0"
 
 kotlin {
     jvmToolchain(21)
@@ -41,6 +41,8 @@ dependencies {
     // Sincronización WebDAV
     implementation(libs.okhttp)
     implementation(libs.org.json)
+    // Argon2id y HKDF para el formato de cifrado v3
+    implementation(libs.bouncycastle.prov)
 
     // Imágenes
     implementation(libs.coil.compose)

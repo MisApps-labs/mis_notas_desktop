@@ -326,4 +326,8 @@
     <string name="check_updates">Rechercher les mises à jour</string>
     <string name="check_updates_desc">Prévenir quand une nouvelle version est publiée sur GitHub</string>
     <string name="check_updates_now">Vérifier maintenant</string>
+    <string name="err_vault_upgraded">Le chiffrement a été mis à jour sur un autre appareil. Saisissez à nouveau votre mot de passe principal.</string>
+    <string name="err_bad_recovery">Cette clé de récupération n’est pas valide pour ce compte</string>
+    <string name="err_keyinfo_downgraded">Le serveur a une configuration de chiffrement plus ancienne que cet appareil. La synchronisation est suspendue pour protéger vos notes.</string>
+    <string name="err_vault_concurrent">Un autre appareil a modifié le chiffrement en même temps. Réessayez.</string>
 </resources>

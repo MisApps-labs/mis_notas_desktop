@@ -3,6 +3,7 @@
 # Mis Notas — https://github.com/MisApps-labs/mis_notas_desktop
 
 [versions]
+bouncycastle = "1.79"
 kotlin = "2.3.21"
 ksp = "2.3.13"
 composeMultiplatform = "1.12.2"
@@ -20,6 +21,7 @@ javaKeyring = "1.0.4"
 junit = "4.13.2"
 
 [libraries]
+bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIcons" }
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }

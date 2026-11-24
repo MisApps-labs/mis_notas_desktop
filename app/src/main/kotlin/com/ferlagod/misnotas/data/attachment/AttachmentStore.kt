@@ -61,6 +61,35 @@ class AttachmentStore(baseDir: File = AppDirs.filesDir) {
         fun firstReferencedId(markdown: String): String? =
             REF_REGEX.find(markdown)?.groupValues?.get(1)
 
+        /** Prefijo de los enlaces a ficheros adjuntos (no imágenes): `[📎 nombre.pdf](attachment://id)`. */
+        const val FILE_PREFIX = "📎 "
+
+        private val FILE_LINK = Regex("""(?<!!)\[([^\]]*)]\(attachment://([A-Za-z0-9_-]+)\)""")
+
+        /** Nombre de cada adjunto enlazado como fichero (no como imagen) en [markdown]. */
+        fun fileNames(markdown: String): Map<String, String> =
+            FILE_LINK.findAll(markdown).associate { it.groupValues[2] to it.groupValues[1].removePrefix(FILE_PREFIX).trim() }
+
+        private val MIME_BY_EXT = mapOf(
+            "pdf" to "application/pdf", "png" to "image/png", "jpg" to "image/jpeg", "jpeg" to "image/jpeg",
+            "gif" to "image/gif", "webp" to "image/webp", "mp3" to "audio/mpeg", "ogg" to "audio/ogg",
+            "m4a" to "audio/mp4", "wav" to "audio/wav", "mp4" to "video/mp4", "txt" to "text/plain",
+            "zip" to "application/zip", "doc" to "application/msword",
+            "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "xlsx" to "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "odt" to "application/vnd.oasis.opendocument.text"
+        )
+
+        /** Tipo MIME según la extensión de [name], o null. */
+        fun mimeForName(name: String): String? {
+            val ext = name.substringAfterLast('.', "").lowercase()
+            if (ext.isEmpty()) return null
+            return MIME_BY_EXT[ext] ?: java.net.URLConnection.guessContentTypeFromName(name)
+        }
+
+        fun extensionForMime(mime: String?): String =
+            MIME_BY_EXT.entries.firstOrNull { it.value == mime }?.let { if (it.key == "jpeg") ".jpg" else ".${it.key}" } ?: ".bin"
+
         /** Como [file], pero sin instancia; usa la carpeta de datos de la app. */
         fun fileFor(id: String): File =
             File(File(AppDirs.filesDir, DIR_NAME), sanitize(id))
@@ -77,6 +106,10 @@ class AttachmentStore(baseDir: File = AppDirs.filesDir) {
                 startsWith(0xFF, 0xD8, 0xFF) -> "image/jpeg"
                 startsWith(0x47, 0x49, 0x46, 0x38) -> "image/gif"
                 startsWith(0x52, 0x49, 0x46, 0x46) && startsWith(0x57, 0x45, 0x42, 0x50, offset = 8) -> "image/webp"
+                startsWith(0x25, 0x50, 0x44, 0x46) -> "application/pdf"
+                startsWith(0x52, 0x49, 0x46, 0x46) && startsWith(0x57, 0x41, 0x56, 0x45, offset = 8) -> "audio/wav"
+                startsWith(0x49, 0x44, 0x33) || startsWith(0xFF, 0xFB) -> "audio/mpeg"
+                startsWith(0x4F, 0x67, 0x67, 0x53) -> "audio/ogg"
                 else -> fallback
             }
         }

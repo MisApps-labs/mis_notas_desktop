@@ -326,4 +326,8 @@
     <string name="check_updates">Buscar actualizaciones</string>
     <string name="check_updates_desc">Avisar cuando se publique una versión nueva en GitHub</string>
     <string name="check_updates_now">Comprobar ahora</string>
+    <string name="err_vault_upgraded">El cifrado se ha actualizado en otro dispositivo. Vuelve a escribir tu contraseña maestra.</string>
+    <string name="err_bad_recovery">Esa clave de recuperación no es válida para esta cuenta</string>
+    <string name="err_keyinfo_downgraded">El servidor tiene una configuración de cifrado más antigua que este dispositivo. La sincronización se ha detenido para proteger tus notas.</string>
+    <string name="err_vault_concurrent">Otro dispositivo ha cambiado el cifrado a la vez. Inténtalo de nuevo.</string>
 </resources>

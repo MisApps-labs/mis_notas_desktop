@@ -8,6 +8,7 @@ import com.ferlagod.misnotas.data.local.entity.FolderEntity
 import com.ferlagod.misnotas.data.local.entity.NoteEntity
 import com.ferlagod.misnotas.data.local.model.SyncStatus
 import com.ferlagod.misnotas.security.CryptoManager
+import com.ferlagod.misnotas.security.Keyring
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,7 +19,7 @@ import org.junit.Test
 /** Formato remoto cifrado: ida y vuelta, metadatos ocultos, ligado al id y lápidas verificadas. */
 class RemoteCodecTest {
 
-    private val key = CryptoManager.deriveKey("SyncTestMasterPassword2026", CryptoManager.generateSalt())
+    private val key = Keyring.legacy(CryptoManager.deriveKey("SyncTestMasterPassword2026", CryptoManager.generateSalt()))
 
     private val note = NoteEntity(
         id = "11111111-2222-3333-4444-555555555555",
@@ -66,7 +67,7 @@ class RemoteCodecTest {
 
     @Test
     fun wrongKeyFails() {
-        val other = CryptoManager.deriveKey("otra", CryptoManager.generateSalt())
+        val other = Keyring.legacy(CryptoManager.deriveKey("otra", CryptoManager.generateSalt()))
         try {
             RemoteCodec.decodeNote(RemoteCodec.encodeNote(note, key), note.id, other)
             fail("Debería fallar con otra clave")
@@ -91,7 +92,7 @@ class RemoteCodecTest {
 
     @Test
     fun forgedOrForeignTombstoneIsRejected() {
-        val other = CryptoManager.deriveKey("otra", CryptoManager.generateSalt())
+        val other = Keyring.legacy(CryptoManager.deriveKey("otra", CryptoManager.generateSalt()))
         val foreign = RemoteCodec.encodeTombstone(RemoteCodec.TYPE_NOTE, note.id, 42L, other)
         try {
             RemoteCodec.decodeNote(foreign, note.id, key)
@@ -119,8 +120,8 @@ class RemoteCodecTest {
         val legacy = JSONObject().apply {
             put("id", note.id)
             put("folderId", JSONObject.NULL)
-            put("title", CryptoManager.encrypt("Antigua", key))
-            put("content", CryptoManager.encrypt("Texto v1", key))
+            put("title", CryptoManager.encrypt("Antigua", key.currentKey))
+            put("content", CryptoManager.encrypt("Texto v1", key.currentKey))
             put("isPinned", false)
             put("color", "DEFAULT")
             put("updatedAt", 10L)

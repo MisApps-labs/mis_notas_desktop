@@ -246,6 +246,15 @@ class MainViewModel : ViewModel() {
     private val pendingWrites = java.util.concurrent.ConcurrentHashMap.newKeySet<Job>()
 
     init {
+        // Otro dispositivo actualizó la bóveda a v3: se pide la contraseña para recoger sus claves.
+        viewModelScope.launch {
+            syncState.collect { state ->
+                val cause = (state as? SyncState.Error)?.cause
+                if (cause is com.ferlagod.misnotas.data.sync.WrongMasterPasswordException &&
+                    cause.reason == com.ferlagod.misnotas.data.sync.WrongMasterPasswordException.Reason.VAULT_UPGRADED
+                ) lock()
+            }
+        }
         viewModelScope.launch {
             syncRepository.migrateLegacyImages()
             purgeOldTrash()
@@ -416,8 +425,8 @@ class MainViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val key = syncRepository.vault.unlockLocal(masterPassword)
-                authPreferences.saveDerivedKey(key)
+                val ring = syncRepository.unlock(masterPassword)
+                authPreferences.saveKeyring(ring)
                 _isUnlocked.value = true
                 SyncWorker.schedule()
                 triggerSync()

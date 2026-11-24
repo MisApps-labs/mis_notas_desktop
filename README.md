@@ -85,6 +85,10 @@ Para una instalación portátil o para hacer pruebas, se puede usar otra carpeta
 > [!WARNING]
 > **Si olvidas la contraseña maestra, no hay forma de recuperar las notas guardadas en el servidor.** Ni el administrador de Nextcloud ni el autor de la app pueden descifrarlas. Guárdala en un gestor de contraseñas.
 
+## Cifrado v3
+
+Es compatible con el cifrado v3 que se activa desde Mis Notas para Android (Ajustes → Sincronización → Cifrado): Argon2id, cifrado en sobre, rotación de clave, ficheros con relleno y protección contra vueltas atrás. Actualizar la bóveda, cambiar la contraseña maestra o crear la clave de recuperación se hace desde el móvil; aquí basta con escribir la contraseña maestra.
+
 ## Seguridad en breve
 
 - La clave se deriva de tu contraseña maestra con PBKDF2-HMAC-SHA256 (600.000 iteraciones) y un *salt* aleatorio.

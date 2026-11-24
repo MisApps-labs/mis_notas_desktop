@@ -125,12 +125,7 @@ class BackupManager {
 
     /** Extensión del fichero de imagen según el tipo MIME registrado del adjunto. */
     private suspend fun extensionFor(id: String): String =
-        when (attachmentDao.getById(id)?.mimeType) {
-            "image/png" -> ".png"
-            "image/jpeg" -> ".jpg"
-            "image/gif" -> ".gif"
-            else -> ".webp"
-        }
+        AttachmentStore.extensionForMime(attachmentDao.getById(id)?.mimeType ?: "image/webp")
 
     // ------------------------------------------------------------------
     // Importar

@@ -313,4 +313,8 @@
     <string name="check_updates">Nach Updates suchen</string>
     <string name="check_updates_desc">Benachrichtigen, wenn eine neue Version auf GitHub erscheint</string>
     <string name="check_updates_now">Jetzt prüfen</string>
+    <string name="err_vault_upgraded">Die Verschlüsselung wurde auf einem anderen Gerät aktualisiert. Gib dein Master-Passwort erneut ein.</string>
+    <string name="err_bad_recovery">Dieser Wiederherstellungsschlüssel gilt nicht für dieses Konto</string>
+    <string name="err_keyinfo_downgraded">Der Server hat eine ältere Verschlüsselung als dieses Gerät. Die Synchronisierung ist zum Schutz deiner Notizen angehalten.</string>
+    <string name="err_vault_concurrent">Ein anderes Gerät hat die Verschlüsselung gleichzeitig geändert. Versuche es erneut.</string>
 </resources>

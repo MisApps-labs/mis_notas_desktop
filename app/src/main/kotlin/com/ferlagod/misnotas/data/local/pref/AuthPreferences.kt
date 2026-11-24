@@ -7,6 +7,7 @@ package com.ferlagod.misnotas.data.local.pref
 import com.ferlagod.misnotas.platform.AppDirs
 import com.ferlagod.misnotas.platform.SecureStore
 import com.ferlagod.misnotas.security.CryptoManager
+import com.ferlagod.misnotas.security.Keyring
 import javax.crypto.SecretKey
 
 /**
@@ -36,6 +37,11 @@ class AuthPreferences internal constructor(private val prefs: SecureStore) {
         private const val KEY_CHECK = "key_check"
         private const val KEY_DERIVED_KEY_BASE64 = "key_derived_key_base64"
         private const val KEY_LAST_SYNC = "key_last_sync"
+        private const val KEY_KEYRING_JSON = "key_keyring_json"
+        private const val KEY_VMK_BASE64 = "key_vmk_base64"
+        private const val KEY_KEYINFO_V3 = "key_keyinfo_v3"
+        private const val KEY_MANIFEST_SEQ = "key_manifest_seq"
+        private const val KEY_KNOWN_REVS = "key_known_revs"
         /** Carpeta del servidor donde se guardan los datos de la app. */
         const val DEFAULT_FOLDER_NAME = "MisNotas"
 
@@ -121,6 +127,7 @@ class AuthPreferences internal constructor(private val prefs: SecureStore) {
             remove(KEY_SALT_BASE64)
             remove(KEY_ITERATIONS)
             remove(KEY_CHECK)
+            remove(KEY_KEYINFO_V3)
         }
     }
 
@@ -145,11 +152,71 @@ class AuthPreferences internal constructor(private val prefs: SecureStore) {
 
     /** Olvida la clave desbloqueada (la próxima vez se pedirá la contraseña de cifrado). */
     fun clearDerivedKey() {
-        prefs.edit { remove(KEY_DERIVED_KEY_BASE64) }
+        prefs.edit {
+            remove(KEY_DERIVED_KEY_BASE64)
+            remove(KEY_KEYRING_JSON)
+            remove(KEY_VMK_BASE64)
+        }
+    }
+
+    /** Copia del `keyinfo.json` v3 (desbloqueo sin conexión y restauración si desaparece). */
+    fun getKeyInfoV3(): String? = prefs.getString(KEY_KEYINFO_V3)
+
+    fun saveKeyInfoV3(raw: String?) {
+        prefs.edit { if (raw != null) this[KEY_KEYINFO_V3] = raw else remove(KEY_KEYINFO_V3) }
+    }
+
+    /** Claves desbloqueadas: la única de una bóveda v2 o el llavero y la VMK de una v3. */
+    fun saveKeyring(ring: Keyring) {
+        prefs.edit {
+            val vmk = ring.vmk
+            if (vmk == null) {
+                this[KEY_DERIVED_KEY_BASE64] = CryptoManager.keyToBase64(ring.currentKey)
+                remove(KEY_KEYRING_JSON)
+                remove(KEY_VMK_BASE64)
+            } else {
+                this[KEY_KEYRING_JSON] = ring.toJson().toString()
+                this[KEY_VMK_BASE64] = CryptoManager.keyToBase64(vmk)
+                ring.key(Keyring.LEGACY_KID)?.let { this[KEY_DERIVED_KEY_BASE64] = CryptoManager.keyToBase64(it) }
+            }
+        }
+    }
+
+    fun getKeyring(): Keyring? {
+        val ringJson = prefs.getString(KEY_KEYRING_JSON)
+        val vmk = prefs.getString(KEY_VMK_BASE64)
+        if (ringJson != null && vmk != null) {
+            return try {
+                Keyring.fromJson(org.json.JSONObject(ringJson), CryptoManager.keyFromBase64(vmk))
+            } catch (_: Exception) {
+                null
+            }
+        }
+        return getDerivedKey()?.let { Keyring.legacy(it) }
+    }
+
+    /** Número de secuencia más alto visto en `manifest.json` (protección contra vueltas atrás). */
+    fun getManifestSeq(): Long = prefs.getLong(KEY_MANIFEST_SEQ, 0L)
+
+    fun getKnownRevs(): Map<String, Long> = prefs.getString(KEY_KNOWN_REVS)?.let { raw ->
+        try {
+            val json = org.json.JSONObject(raw)
+            json.keys().asSequence().associateWith { json.getLong(it) }
+        } catch (_: Exception) {
+            emptyMap()
+        }
+    }.orEmpty()
+
+    fun setKnownRevs(revs: Map<String, Long>) {
+        prefs.edit { this[KEY_KNOWN_REVS] = org.json.JSONObject(revs as Map<*, *>).toString() }
+    }
+
+    fun setManifestSeq(seq: Long) {
+        prefs.edit { this[KEY_MANIFEST_SEQ] = seq.toString() }
     }
 
     /** `true` si la clave de cifrado está disponible. */
-    fun isKeyUnlocked(): Boolean = getDerivedKey() != null
+    fun isKeyUnlocked(): Boolean = getKeyring() != null
 
     // ------------------------------------------------------------------
     // Estado
@@ -185,7 +252,8 @@ class AuthPreferences internal constructor(private val prefs: SecureStore) {
         prefs.edit {
             listOf(
                 KEY_SERVER_URL, KEY_USERNAME, KEY_APP_PASSWORD, KEY_SALT_BASE64,
-                KEY_ITERATIONS, KEY_CHECK, KEY_DERIVED_KEY_BASE64, KEY_LAST_SYNC
+                KEY_ITERATIONS, KEY_CHECK, KEY_DERIVED_KEY_BASE64, KEY_LAST_SYNC,
+                KEY_KEYRING_JSON, KEY_VMK_BASE64, KEY_KEYINFO_V3, KEY_MANIFEST_SEQ, KEY_KNOWN_REVS
             ).forEach { remove(it) }
         }
     }

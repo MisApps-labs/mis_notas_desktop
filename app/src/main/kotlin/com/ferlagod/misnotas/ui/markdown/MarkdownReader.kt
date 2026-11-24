@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -195,6 +196,23 @@ fun MarkdownReader(
     val blocks = remember(markdownText) { parseBlocks(markdownText) }
     val linkColor = primaryBlue
 
+    // Los enlaces `attachment://` (ficheros adjuntos desde el móvil) se abren con la app del sistema.
+    val systemHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val currentText by androidx.compose.runtime.rememberUpdatedState(markdownText)
+    val uriHandler = remember(systemHandler) {
+        object : androidx.compose.ui.platform.UriHandler {
+            override fun openUri(uri: String) {
+                if (uri.startsWith(com.ferlagod.misnotas.data.attachment.AttachmentStore.SCHEME)) {
+                    val id = uri.removePrefix(com.ferlagod.misnotas.data.attachment.AttachmentStore.SCHEME)
+                    com.ferlagod.misnotas.util.AttachmentOpener.open(id, com.ferlagod.misnotas.data.attachment.AttachmentStore.fileNames(currentText)[id])
+                } else {
+                    runCatching { systemHandler.openUri(uri) }
+                }
+            }
+        }
+    }
+
+    androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalUriHandler provides uriHandler) {
     Column(modifier = Modifier.fillMaxWidth()) {
         for (block in blocks) {
             when (block) {
@@ -315,13 +333,9 @@ fun MarkdownReader(
             }
         }
     }
+    }
 }
 
-/**
- * Imagen de una nota: por defecto ocupa el ancho disponible (adaptada a la pantalla) y como
- * mucho el 75 % del alto de la pantalla, sin recortarse. [widthPercent] la hace más estrecha.
- */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteImage(
     model: Any,
