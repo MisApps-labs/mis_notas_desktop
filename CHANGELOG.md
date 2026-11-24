@@ -5,7 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); v
 ## [1.1.0] - 2026-11-24
 
 ### Añadido
-- Compatibilidad con el **cifrado v3** de Mis Notas para Android 1.1: Argon2id, cifrado en sobre, llavero con varias claves (rotación), ficheros con relleno, lápidas cifradas y protección contra vueltas atrás (`rev` y `manifest.json`). Una bóveda actualizada en el móvil se abre aquí con la misma contraseña maestra. Si otro dispositivo la actualiza mientras esta app está abierta, se pide la contraseña una vez.
+- Compatibilidad con el **cifrado v3** de Mis Notas para Android 1.0.2: Argon2id, cifrado en sobre, llavero con varias claves (rotación), ficheros con relleno, lápidas cifradas y protección contra vueltas atrás (`rev` y `manifest.json`). Una bóveda actualizada en el móvil se abre aquí con la misma contraseña maestra. Si otro dispositivo la actualiza mientras esta app está abierta, se pide la contraseña una vez.
 - Los **archivos adjuntos** (PDF, audio, documentos…) añadidos desde el móvil se descargan con su tipo, se abren con la aplicación del sistema al pulsar su enlace y se exportan con su extensión.
 
 ### Cambiado
